@@ -852,7 +852,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d15bfda5d5d45345a0cf2220c11fcfc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hasTouched: 0
+  hasTouchedTarget: 0
+  hasTouchedTable: 0
+  targetTag: Target
+  tableTag: Table
 --- !u!1001 &1064094161
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1622,6 +1625,15 @@ MonoBehaviour:
   robot: {fileID: 1442213767}
   hand: {fileID: 995377197}
   target: {fileID: 1383161865}
+  initialRotations:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  rewardMultiplier: 0.1
 --- !u!114 &1442213776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1635,7 +1647,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 10
+    VectorObservationSize: 13
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0

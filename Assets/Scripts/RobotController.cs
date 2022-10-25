@@ -21,21 +21,25 @@ public class RobotController : MonoBehaviour
         for (int i = 0; i < joints.Length; i++)
         {
             GameObject robotPart = joints[i].robotPart;
+            //ArticulationJointController articulation = robotPart.GetComponent<ArticulationJointController>();
+            //ArticulationBody articulationBody = articulation.GetComponent<ArticulationBody>();
+            //articulationBody.jointVelocity = new ArticulationReducedSpace(0.0f);
+
             UpdateRotationState(RotationDirection.None, robotPart);
             //UpdateRotationState(0f, robotPart);
         }
     }
 
-    public void ResetRotation()
+    public void ResetRotation(float[] rotations)
     {
         for (int i = 0; i < joints.Length; i++)
         {
             Joint joint = joints[i];
             ArticulationJointController articulation = joint.robotPart.GetComponent<ArticulationJointController>();
-            articulation.ForceToRotation(0.0f);
+            articulation.ForceToRotation(rotations[i]);
         }
 
-        StopAllJointRotations();
+        //StopAllJointRotations();
     }
 
     public void RotateJoint(int jointIndex, RotationDirection direction)

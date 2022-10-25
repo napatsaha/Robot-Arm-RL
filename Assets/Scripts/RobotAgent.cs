@@ -10,9 +10,11 @@ public class RobotAgent : Agent
     public GameObject robot;
     public GameObject hand;
     public GameObject target;
+    public float[] initialRotations = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     private RobotController controller;
     private TargetDetector detector;
-
+    public float rewardMultiplier = 0.1f;
+ 
     public void Start()
     {
         controller = robot.GetComponent<RobotController>();
@@ -29,8 +31,10 @@ public class RobotAgent : Agent
 
         //}
 
-        controller.ResetRotation();
-        detector.hasTouched = false;
+
+        controller.ResetRotation(initialRotations);
+        detector.hasTouchedTarget = false;
+        detector.hasTouchedTable = false;
 
         // Reset Target Motion
         Rigidbody targetRigidBody = target.GetComponent<Rigidbody>();
@@ -79,6 +83,8 @@ public class RobotAgent : Agent
         // Observe target location
         sensor.AddObservation(target.transform.position);
         //Debug.Log("Observations : " + sensor.ToString());
+        Vector3 relativeDistance = target.transform.position - robot.transform.position;
+        sensor.AddObservation(relativeDistance);
 
 
     }
@@ -87,6 +93,7 @@ public class RobotAgent : Agent
     {
         //Debug.Log("Length of action: " + actions.DiscreteActions.Length);
         //Debug.Log("First Action: " + actions.DiscreteActions[0]);
+        //Debug.Log("Touched Table: " + detector.hasTouchedTable);
         
         for (int i = 0; i < actions.DiscreteActions.Length; i++)
         {
@@ -95,17 +102,45 @@ public class RobotAgent : Agent
             controller.RotateJoint(i, direction);
             //controller.RotateJoint(i, actionValue);
 
-            // Check for episode reset
-            if (Input.GetKey(KeyCode.Space) || detector.hasTouched)
-            {
-                AddReward(10f);
-                EndEpisode();
-            }
+
 
         }
         //controller.StopAllJointRotations();
+        // Check for episode reset
+        if (Input.GetKey(KeyCode.Space) || detector.hasTouchedTarget)
+        {
+            SetReward(10f);
+            EndEpisode();
+        }
 
-        AddReward(-0.01f);
+        // If hand touches table
+        if (detector.hasTouchedTable)
+        {
+            SetReward(-2f);
+            EndEpisode();
+        }
+
+        // Distance between Hand and Target
+        float distanceToTarget = Vector3.Distance(target.transform.position, hand.transform.position);
+
+        // Vertical Height
+        float jointHeight = 0f;
+        for (int i = 0; i < controller.joints.Length; i++)
+        {
+            float localHeight = controller.joints[i].robotPart.transform.position.y;
+            jointHeight += localHeight - target.transform.position.y;
+        }
+
+
+
+        float reward = jointHeight / 100f - distanceToTarget * rewardMultiplier;
+
+        // Adjust Intermediate Reward based on distance to target
+        SetReward(reward);
+
+
+        //Debug.Log("Reward: " + reward);
+        //AddReward(-0.01f);
 
 
     }

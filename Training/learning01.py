@@ -13,17 +13,19 @@ import time
 
 from deep_q_network import DQN, choose_action
 
-TRIAL = "03"
-N_EPISODES = 20
+TRIAL = "01"
+N_EPISODES = 40
 # LOG_FREQ = N_EPISODES // 10
 LOG_FREQ = 1
-MAX_TIME_STEPS = 1000 #1000
-EPSILON = 0.45
-EPSILON_DECAY = 0.999
+MAX_TIME_STEPS = 200 #1000
+EPSILON = 0.3
+EPSILON_DECAY = 0.99
 GAMMA = 0.9
 LEARNING_RATE = 0.01
 REG_COEF = 0.1
 HIDDEN = 128
+
+print("Ready to train.\n Press Play on Unity...\n")
 
 env = UnityEnvironment()
 env.reset()
@@ -97,7 +99,8 @@ try:
             #     print(f"Time Step: {t}")
             
             if done:
-                print("Episode Terminated!!")
+                if reward > 0:
+                    print("Target Reached!!")
                 break
             
         EPSILON = max(0.1, EPSILON_DECAY * EPSILON)
@@ -113,6 +116,11 @@ try:
                   f'Done: {done}'
             )
             
+    plt.plot(mean_reward_list)
+    plt.xlabel("Episode")
+    plt.ylabel("Mean Reward")
+    plt.title("Mean Reward per Episode")
+    plt.savefig("Trial"+TRIAL+".png")
     
 
 finally:

@@ -40,7 +40,7 @@ class DQN(nn.Module):
             )
         
         # Define Optimizer
-        self.optimizer = optim.Adam(self.parameters(), lr=lr)
+        self.optimizer = optim.Adam(self.parameters(), lr=lr, weight_decay=1e-3)
         self.criterion = nn.MSELoss()
         
         self.reg_coef = reg_coef
