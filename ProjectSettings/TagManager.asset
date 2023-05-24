@@ -7,6 +7,8 @@ TagManager:
   - Base01
   - Target
   - Table
+  - Pincher
+  - Body
   layers:
   - Default
   - TransparentFX

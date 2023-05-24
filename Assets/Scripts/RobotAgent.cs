@@ -10,15 +10,22 @@ public class RobotAgent : Agent
     public GameObject robot;
     public GameObject hand;
     public GameObject target;
+    public GameObject table;
     public float[] initialRotations = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     private RobotController controller;
     private TargetDetector detector;
-    public float rewardMultiplier = 0.1f;
+    private PositionRandomizer randomizer;
+    private HandDetector cubeDetector;
+    private SingleDetector tableDetector;
+    private float rewardMultiplier = 0.5f;
  
     public void Start()
     {
         controller = robot.GetComponent<RobotController>();
         detector = hand.GetComponent<TargetDetector>();
+        cubeDetector = target.GetComponent<HandDetector>();
+        tableDetector = table.GetComponent<SingleDetector>();
+        randomizer = target.GetComponent<PositionRandomizer>();
         //Debug.Log("Number of children: " + this.transform.childCount);
     }
     
@@ -35,27 +42,31 @@ public class RobotAgent : Agent
         controller.ResetRotation(initialRotations);
         detector.hasTouchedTarget = false;
         detector.hasTouchedTable = false;
+        cubeDetector.hasTouched = false;
+        cubeDetector.badCollision = false;
+        tableDetector.hasTouched = false;
+        randomizer.Randomize();
 
-        // Reset Target Motion
-        Rigidbody targetRigidBody = target.GetComponent<Rigidbody>();
-        targetRigidBody.angularVelocity = Vector3.zero;
-        targetRigidBody.velocity = Vector3.zero;
+        // // Reset Target Motion
+        // Rigidbody targetRigidBody = target.GetComponent<Rigidbody>();
+        // targetRigidBody.angularVelocity = Vector3.zero;
+        // targetRigidBody.velocity = Vector3.zero;
 
-        // Reset Target Position
+        // // Reset Target Position
 
-        float radius = Mathf.Sqrt(Mathf.Pow(0.485f,2) + Mathf.Pow(-0.17f, 2));
+        // float radius = Mathf.Sqrt(Mathf.Pow(0.485f,2) + Mathf.Pow(-0.17f, 2));
 
-        // 2D
-        //Vector2 center = Vector2.zero;
-        //Vector2 randomPoint = center + Random.insideUnitCircle * radius;
-        //target.transform.position = new Vector3(randomPoint.x, 0.778f, randomPoint.y);
+        // // 2D
+        // //Vector2 center = Vector2.zero;
+        // //Vector2 randomPoint = center + Random.insideUnitCircle * radius;
+        // //target.transform.position = new Vector3(randomPoint.x, 0.778f, randomPoint.y);
 
-        //Debug.Log("New Position" + target.transform.position);
+        // //Debug.Log("New Position" + target.transform.position);
 
-        // 3D
-        Vector3 center = new Vector3(0f, 0.778f, 0f);
-        Vector3 point = center + Random.insideUnitSphere * radius;
-        target.transform.position = point;
+        // // 3D
+        // Vector3 center = new Vector3(0f, 0.778f, 0f);
+        // Vector3 point = center + Random.insideUnitSphere * radius;
+        // target.transform.position = point;
 
         //Debug.Log("New Position" + target.transform.position);
 
@@ -70,23 +81,28 @@ public class RobotAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        //sensor.AddObservation(0f);
 
         // Obtain rotation axis in radians for each joint
         for (int i = 0; i < controller.joints.Length; i++)
         {
             ArticulationJointController joint = controller.joints[i].robotPart.GetComponent<ArticulationJointController>();
-            float rotation = joint.CurrentPrimaryAxisRotation();
+            float rotation = (joint.CurrentPrimaryAxisRotation() % 360) / 360;
             sensor.AddObservation(rotation);
         }
 
         // Observe target location
-        sensor.AddObservation(target.transform.position);
-        //Debug.Log("Observations : " + sensor.ToString());
-        Vector3 relativeDistance = target.transform.position - robot.transform.position;
-        sensor.AddObservation(relativeDistance);
+        // sensor.AddObservation(target.transform.position);
+        
+        Vector3 relativeTargetPosition = target.transform.position - robot.transform.position;
+        sensor.AddObservation(relativeTargetPosition.normalized);
 
+        // // Observe Hand Position
+        // Vector3 relativeHandPosition = hand.transform.position - robot.transform.position;
+        // sensor.AddObservation(relativeHandPosition);       
 
+        // // Observe RelativeDistance
+        // Vector3 relativeDistance = relativeTargetPosition - relativeHandPosition;
+        // sensor.AddObservation(relativeDistance);   
     }
 
     public override void OnActionReceived(ActionBuffers actions)
@@ -106,43 +122,58 @@ public class RobotAgent : Agent
 
         }
         //controller.StopAllJointRotations();
+
+        SetReward(0f);
+
         // Check for episode reset
-        if (Input.GetKey(KeyCode.Space) || detector.hasTouchedTarget)
+        if (Input.GetKey(KeyCode.Space) || cubeDetector.hasTouched)
         {
-            SetReward(10f);
+            SetReward(1f);
             EndEpisode();
+        }
+
+        // If other parts of the body hit the target
+        if (cubeDetector.badCollision)
+        {
+            AddReward(-0.5f);
+            cubeDetector.badCollision = false;
+
+        }
+
+        // If body touches table
+        if (tableDetector.hasTouched)
+        {
+            AddReward(-0.5f);
+            tableDetector.hasTouched = false;
+            // Debug.Log("Arm collided with table");
         }
 
         // If hand touches table
-        if (detector.hasTouchedTable)
-        {
-            SetReward(-2f);
-            EndEpisode();
-        }
+        // if (detector.hasTouchedTable)
+        // {
+        //     SetReward(-1f);
+            
+        //     EndEpisode();
+        // }
 
         // Distance between Hand and Target
-        float distanceToTarget = Vector3.Distance(target.transform.position, hand.transform.position);
+        float distanceToTarget = Vector3.Distance(hand.transform.position, target.transform.position);
 
         // Vertical Height
-        float jointHeight = 0f;
-        for (int i = 0; i < controller.joints.Length; i++)
-        {
-            float localHeight = controller.joints[i].robotPart.transform.position.y;
-            jointHeight += localHeight - target.transform.position.y;
-        }
+        // float jointHeight = 0f;
+        // for (int i = 0; i < controller.joints.Length; i++)
+        // {
+        //     float localHeight = controller.joints[i].robotPart.transform.position.y;
+        //     jointHeight += localHeight - target.transform.position.y;
+        // }
 
-
-
-        float reward = jointHeight / 100f - distanceToTarget * rewardMultiplier;
+        float reward = ( - distanceToTarget * rewardMultiplier);
+        reward = Mathf.Clamp(reward, -rewardMultiplier, 0f);
 
         // Adjust Intermediate Reward based on distance to target
-        SetReward(reward);
+        AddReward(reward);
 
-
-        //Debug.Log("Reward: " + reward);
-        //AddReward(-0.01f);
-
-
+        // Debug.Log("Reward: " + reward);
     }
 
     // Manual Input from keyboard
@@ -162,13 +193,13 @@ public class RobotAgent : Agent
     //    Debug.Log("Collided with a " + collision.collider.gameObject.tag + " by a " + collision.GetContact(0).thisCollider.gameObject.name);
     //}
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Target"))
-        {
-            Debug.Log("Touched the Target !!");
-        }
-    }
+    // private void OnTriggerEnter(Collider other)
+    // {
+    //     if (other.CompareTag("Target"))
+    //     {
+    //         Debug.Log("Touched the Target !!");
+    //     }
+    // }
 
     //private void OnCollisionEnter(Collision collision)
     //{

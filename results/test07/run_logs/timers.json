@@ -1,0 +1,54 @@
+{
+    "name": "root",
+    "metadata": {
+        "timer_format_version": "0.1.0",
+        "start_time_seconds": "1680223184",
+        "python_version": "3.7.13 (default, Mar 28 2022, 08:03:21) [MSC v.1916 64 bit (AMD64)]",
+        "command_line_arguments": "C:\\Users\\napat\\anaconda3\\envs\\mlagents\\Scripts\\mlagents-learn config\\ur3_config_test02.yml --run-id=test07 --torch-device=cuda:0 --resume",
+        "mlagents_version": "0.28.0",
+        "mlagents_envs_version": "0.28.0",
+        "communication_protocol_version": "1.5.0",
+        "pytorch_version": "1.7.1+cu110",
+        "numpy_version": "1.21.5",
+        "end_time_seconds": "1680223195"
+    },
+    "total": 11.0335774,
+    "count": 1,
+    "self": 0.0074062000000001404,
+    "children": {
+        "run_training.setup": {
+            "total": 0.27278939999999996,
+            "count": 1,
+            "self": 0.27278939999999996
+        },
+        "TrainerController.start_learning": {
+            "total": 10.7533818,
+            "count": 1,
+            "self": 9.099999999939712e-05,
+            "children": {
+                "TrainerController._reset_env": {
+                    "total": 9.9738055,
+                    "count": 1,
+                    "self": 9.9738055
+                },
+                "trainer_threads": {
+                    "total": 5.999999999062311e-07,
+                    "count": 1,
+                    "self": 5.999999999062311e-07
+                },
+                "TrainerController._save_models": {
+                    "total": 0.7794847000000011,
+                    "count": 1,
+                    "self": 0.006928200000000828,
+                    "children": {
+                        "RLTrainer._checkpoint": {
+                            "total": 0.7725565000000003,
+                            "count": 1,
+                            "self": 0.7725565000000003
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

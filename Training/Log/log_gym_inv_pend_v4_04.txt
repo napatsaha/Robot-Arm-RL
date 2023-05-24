@@ -1,0 +1,119 @@
+    N_EP = 50000
+    # env = gym.make("Pendulum-v1", render_mode='human')
+    env = gym.make("InvertedDoublePendulum-v4", render_mode='human')
+    agent = Cont_SAC_Agent(env, lr=3e-4, gamma=0.99, memory_size=10000, hidden_size=256)
+    results, t = agent.train(n_episode=N_EP, initial_memory=1000, timed=True, batch_size=128, report_freq=500)
+    _ = agent.evaluate(delay=0.1)
+    
+    display_time(t)
+    
+    trial = 4
+    algo = 'gym_inv_pend_v4_'
+    res_name = os.path.join('Training','results_'+algo+str(trial).zfill(2)+'.csv')
+    np.savetxt(res_name, results, delimiter=',')
+
+Episode 0/50000 	 Reward: 1.7861 	 Critic Loss: 17.809	 Actor Loss: -0.186	 Alpha Loss: -0.002
+Episode 500/50000 	 Reward: 92.4590 	 Critic Loss: 428.295	 Actor Loss: -416.233	 Alpha Loss: -0.298
+Episode 1000/50000 	 Reward: 103.6116 	 Critic Loss: 355.553	 Actor Loss: -519.623	 Alpha Loss: -0.097
+Episode 1500/50000 	 Reward: 94.8501 	 Critic Loss: 240.078	 Actor Loss: -530.979	 Alpha Loss: -0.037
+Episode 2000/50000 	 Reward: 105.9694 	 Critic Loss: 263.629	 Actor Loss: -600.042	 Alpha Loss: 0.010
+Episode 2500/50000 	 Reward: 99.7979 	 Critic Loss: 276.549	 Actor Loss: -552.237	 Alpha Loss: 0.025
+Episode 3000/50000 	 Reward: 85.0213 	 Critic Loss: 255.013	 Actor Loss: -459.870	 Alpha Loss: 0.154
+Episode 3500/50000 	 Reward: 85.7458 	 Critic Loss: 265.438	 Actor Loss: -445.575	 Alpha Loss: 0.084
+Episode 4000/50000 	 Reward: 90.6293 	 Critic Loss: 221.587	 Actor Loss: -454.734	 Alpha Loss: 0.076
+Episode 4500/50000 	 Reward: 96.2578 	 Critic Loss: 193.098	 Actor Loss: -495.849	 Alpha Loss: 0.032
+Episode 5000/50000 	 Reward: 98.4626 	 Critic Loss: 184.581	 Actor Loss: -524.139	 Alpha Loss: 0.168
+Episode 5500/50000 	 Reward: 94.1413 	 Critic Loss: 162.462	 Actor Loss: -506.483	 Alpha Loss: -0.076
+Episode 6000/50000 	 Reward: 99.9740 	 Critic Loss: 162.121	 Actor Loss: -535.965	 Alpha Loss: -0.049
+Episode 6500/50000 	 Reward: 97.0332 	 Critic Loss: 148.738	 Actor Loss: -522.520	 Alpha Loss: 0.056
+Episode 7000/50000 	 Reward: 105.8738 	 Critic Loss: 188.159	 Actor Loss: -575.984	 Alpha Loss: 0.023
+Episode 7500/50000 	 Reward: 93.3319 	 Critic Loss: 154.874	 Actor Loss: -501.346	 Alpha Loss: -0.063
+Episode 8000/50000 	 Reward: 93.8288 	 Critic Loss: 129.506	 Actor Loss: -486.488	 Alpha Loss: 0.045
+Episode 8500/50000 	 Reward: 87.4525 	 Critic Loss: 123.772	 Actor Loss: -449.985	 Alpha Loss: 0.001
+Episode 9000/50000 	 Reward: 87.4943 	 Critic Loss: 121.701	 Actor Loss: -440.979	 Alpha Loss: 0.073
+Episode 9500/50000 	 Reward: 77.0455 	 Critic Loss: 114.971	 Actor Loss: -370.050	 Alpha Loss: 0.027
+Episode 10000/50000 	 Reward: 62.3688 	 Critic Loss: 109.085	 Actor Loss: -285.251	 Alpha Loss: 0.086
+Episode 10500/50000 	 Reward: 60.6773 	 Critic Loss: 105.751	 Actor Loss: -257.422	 Alpha Loss: -0.127
+Episode 11000/50000 	 Reward: 52.2945 	 Critic Loss: 76.447	 Actor Loss: -207.196	 Alpha Loss: -0.094
+Episode 11500/50000 	 Reward: 56.5885 	 Critic Loss: 63.335	 Actor Loss: -208.512	 Alpha Loss: 0.042
+Episode 12000/50000 	 Reward: 60.1017 	 Critic Loss: 55.011	 Actor Loss: -212.558	 Alpha Loss: -0.257
+Episode 12500/50000 	 Reward: 58.5689 	 Critic Loss: 44.307	 Actor Loss: -204.028	 Alpha Loss: 0.051
+Episode 13000/50000 	 Reward: 59.5574 	 Critic Loss: 40.028	 Actor Loss: -208.285	 Alpha Loss: 0.070
+Episode 13500/50000 	 Reward: 63.0167 	 Critic Loss: 40.033	 Actor Loss: -223.391	 Alpha Loss: -0.022
+Episode 14000/50000 	 Reward: 60.4774 	 Critic Loss: 46.072	 Actor Loss: -216.189	 Alpha Loss: 0.189
+Episode 14500/50000 	 Reward: 60.7390 	 Critic Loss: 46.739	 Actor Loss: -219.307	 Alpha Loss: 0.075
+Episode 15000/50000 	 Reward: 64.1817 	 Critic Loss: 49.221	 Actor Loss: -231.753	 Alpha Loss: 0.025
+Episode 15500/50000 	 Reward: 64.3083 	 Critic Loss: 46.521	 Actor Loss: -233.656	 Alpha Loss: -0.005
+Episode 16000/50000 	 Reward: 61.7450 	 Critic Loss: 39.937	 Actor Loss: -223.236	 Alpha Loss: -0.043
+Episode 16500/50000 	 Reward: 62.4852 	 Critic Loss: 38.367	 Actor Loss: -225.783	 Alpha Loss: 0.003
+Episode 17000/50000 	 Reward: 66.3697 	 Critic Loss: 43.227	 Actor Loss: -241.084	 Alpha Loss: 0.061
+Episode 17500/50000 	 Reward: 68.2861 	 Critic Loss: 48.147	 Actor Loss: -253.846	 Alpha Loss: -0.064
+Episode 18000/50000 	 Reward: 67.2531 	 Critic Loss: 52.946	 Actor Loss: -252.134	 Alpha Loss: 0.090
+Episode 18500/50000 	 Reward: 63.4936 	 Critic Loss: 54.660	 Actor Loss: -241.259	 Alpha Loss: -0.077
+Episode 19000/50000 	 Reward: 62.0665 	 Critic Loss: 54.427	 Actor Loss: -234.105	 Alpha Loss: -0.052
+Episode 19500/50000 	 Reward: 62.2757 	 Critic Loss: 50.212	 Actor Loss: -229.228	 Alpha Loss: 0.137
+Episode 20000/50000 	 Reward: 59.0468 	 Critic Loss: 43.175	 Actor Loss: -214.370	 Alpha Loss: 0.048
+Episode 20500/50000 	 Reward: 58.8639 	 Critic Loss: 42.571	 Actor Loss: -210.575	 Alpha Loss: -0.028
+Episode 21000/50000 	 Reward: 56.9020 	 Critic Loss: 41.149	 Actor Loss: -200.186	 Alpha Loss: -0.098
+Episode 21500/50000 	 Reward: 55.7341 	 Critic Loss: 39.557	 Actor Loss: -192.759	 Alpha Loss: 0.028
+Episode 22000/50000 	 Reward: 52.7668 	 Critic Loss: 29.959	 Actor Loss: -177.081	 Alpha Loss: 0.037
+Episode 22500/50000 	 Reward: 52.8744 	 Critic Loss: 27.074	 Actor Loss: -175.694	 Alpha Loss: 0.122
+Episode 23000/50000 	 Reward: 52.9519 	 Critic Loss: 26.125	 Actor Loss: -173.199	 Alpha Loss: 0.040
+Episode 23500/50000 	 Reward: 51.9973 	 Critic Loss: 28.750	 Actor Loss: -171.899	 Alpha Loss: 0.078
+Episode 24000/50000 	 Reward: 47.9734 	 Critic Loss: 29.779	 Actor Loss: -156.695	 Alpha Loss: 0.100
+Episode 24500/50000 	 Reward: 47.7334 	 Critic Loss: 29.777	 Actor Loss: -152.624	 Alpha Loss: 0.080
+Episode 25000/50000 	 Reward: 49.7177 	 Critic Loss: 25.557	 Actor Loss: -155.403	 Alpha Loss: -0.010
+Episode 25500/50000 	 Reward: 47.4726 	 Critic Loss: 20.605	 Actor Loss: -144.101	 Alpha Loss: -0.207
+Episode 26000/50000 	 Reward: 46.3110 	 Critic Loss: 19.039	 Actor Loss: -140.682	 Alpha Loss: -0.076
+Episode 26500/50000 	 Reward: 44.4224 	 Critic Loss: 16.120	 Actor Loss: -133.490	 Alpha Loss: 0.231
+Episode 27000/50000 	 Reward: 46.7031 	 Critic Loss: 15.807	 Actor Loss: -138.668	 Alpha Loss: 0.111
+Episode 27500/50000 	 Reward: 47.1141 	 Critic Loss: 16.022	 Actor Loss: -139.732	 Alpha Loss: -0.054
+Episode 28000/50000 	 Reward: 48.2301 	 Critic Loss: 19.625	 Actor Loss: -143.435	 Alpha Loss: 0.029
+Episode 28500/50000 	 Reward: 47.6531 	 Critic Loss: 21.325	 Actor Loss: -144.109	 Alpha Loss: -0.056
+Episode 29000/50000 	 Reward: 45.6021 	 Critic Loss: 18.338	 Actor Loss: -138.357	 Alpha Loss: 0.064
+Episode 29500/50000 	 Reward: 45.9057 	 Critic Loss: 19.603	 Actor Loss: -138.325	 Alpha Loss: -0.139
+Episode 30000/50000 	 Reward: 44.6237 	 Critic Loss: 16.719	 Actor Loss: -133.647	 Alpha Loss: 0.027
+Episode 30500/50000 	 Reward: 44.1983 	 Critic Loss: 13.875	 Actor Loss: -129.855	 Alpha Loss: 0.049
+Episode 31000/50000 	 Reward: 45.2042 	 Critic Loss: 13.496	 Actor Loss: -130.954	 Alpha Loss: -0.043
+Episode 31500/50000 	 Reward: 45.7745 	 Critic Loss: 13.372	 Actor Loss: -132.254	 Alpha Loss: 0.043
+Episode 32000/50000 	 Reward: 46.2281 	 Critic Loss: 14.968	 Actor Loss: -134.409	 Alpha Loss: -0.021
+Episode 32500/50000 	 Reward: 47.3272 	 Critic Loss: 15.754	 Actor Loss: -138.239	 Alpha Loss: -0.205
+Episode 33000/50000 	 Reward: 48.2801 	 Critic Loss: 15.554	 Actor Loss: -141.597	 Alpha Loss: -0.041
+Episode 33500/50000 	 Reward: 45.6886 	 Critic Loss: 13.114	 Actor Loss: -134.490	 Alpha Loss: -0.064
+Episode 34000/50000 	 Reward: 49.5515 	 Critic Loss: 13.433	 Actor Loss: -145.598	 Alpha Loss: -0.026
+Episode 34500/50000 	 Reward: 46.8196 	 Critic Loss: 12.568	 Actor Loss: -137.747	 Alpha Loss: 0.057
+Episode 35000/50000 	 Reward: 51.8822 	 Critic Loss: 14.789	 Actor Loss: -152.786	 Alpha Loss: -0.051
+Episode 35500/50000 	 Reward: 49.1704 	 Critic Loss: 16.851	 Actor Loss: -148.370	 Alpha Loss: 0.138
+Episode 36000/50000 	 Reward: 48.9335 	 Critic Loss: 17.225	 Actor Loss: -149.691	 Alpha Loss: 0.013
+Episode 36500/50000 	 Reward: 50.5809 	 Critic Loss: 19.490	 Actor Loss: -155.800	 Alpha Loss: 0.061
+Episode 37000/50000 	 Reward: 52.3239 	 Critic Loss: 18.209	 Actor Loss: -162.681	 Alpha Loss: 0.257
+Episode 37500/50000 	 Reward: 47.5384 	 Critic Loss: 17.032	 Actor Loss: -148.329	 Alpha Loss: 0.063
+Episode 38000/50000 	 Reward: 49.4895 	 Critic Loss: 17.953	 Actor Loss: -153.709	 Alpha Loss: -0.006
+Episode 38500/50000 	 Reward: 48.6640 	 Critic Loss: 16.263	 Actor Loss: -152.495	 Alpha Loss: -0.089
+Episode 39000/50000 	 Reward: 49.6741 	 Critic Loss: 17.908	 Actor Loss: -155.914	 Alpha Loss: 0.064
+Episode 39500/50000 	 Reward: 48.2678 	 Critic Loss: 19.070	 Actor Loss: -150.186	 Alpha Loss: 0.151
+Episode 40000/50000 	 Reward: 46.3919 	 Critic Loss: 16.189	 Actor Loss: -145.275	 Alpha Loss: 0.076
+Episode 40500/50000 	 Reward: 47.8059 	 Critic Loss: 16.075	 Actor Loss: -148.131	 Alpha Loss: 0.031
+Episode 41000/50000 	 Reward: 46.5206 	 Critic Loss: 15.627	 Actor Loss: -143.111	 Alpha Loss: -0.125
+Episode 41500/50000 	 Reward: 46.4114 	 Critic Loss: 13.305	 Actor Loss: -142.764	 Alpha Loss: -0.106
+Episode 42000/50000 	 Reward: 47.1451 	 Critic Loss: 14.036	 Actor Loss: -144.616	 Alpha Loss: -0.047
+Episode 42500/50000 	 Reward: 46.9032 	 Critic Loss: 15.524	 Actor Loss: -144.128	 Alpha Loss: -0.018
+Episode 43000/50000 	 Reward: 44.9459 	 Critic Loss: 12.749	 Actor Loss: -136.783	 Alpha Loss: 0.003
+Episode 43500/50000 	 Reward: 45.1173 	 Critic Loss: 12.334	 Actor Loss: -136.624	 Alpha Loss: 0.129
+Episode 44000/50000 	 Reward: 46.2345 	 Critic Loss: 11.010	 Actor Loss: -137.611	 Alpha Loss: 0.050
+Episode 44500/50000 	 Reward: 45.2021 	 Critic Loss: 10.183	 Actor Loss: -132.098	 Alpha Loss: -0.056
+Episode 45000/50000 	 Reward: 46.7453 	 Critic Loss: 10.556	 Actor Loss: -137.783	 Alpha Loss: -0.122
+Episode 45500/50000 	 Reward: 47.1152 	 Critic Loss: 10.329	 Actor Loss: -138.924	 Alpha Loss: 0.144
+Episode 46000/50000 	 Reward: 46.4590 	 Critic Loss: 11.582	 Actor Loss: -137.538	 Alpha Loss: -0.103
+Episode 46500/50000 	 Reward: 46.6364 	 Critic Loss: 11.924	 Actor Loss: -139.464	 Alpha Loss: -0.125
+Episode 47000/50000 	 Reward: 46.9749 	 Critic Loss: 15.140	 Actor Loss: -141.999	 Alpha Loss: -0.072
+Episode 47500/50000 	 Reward: 48.4733 	 Critic Loss: 19.683	 Actor Loss: -148.129	 Alpha Loss: 0.042
+Episode 48000/50000 	 Reward: 48.9117 	 Critic Loss: 23.282	 Actor Loss: -152.938	 Alpha Loss: -0.114
+Episode 48500/50000 	 Reward: 50.7874 	 Critic Loss: 25.257	 Actor Loss: -161.480	 Alpha Loss: -0.048
+Episode 49000/50000 	 Reward: 47.4649 	 Critic Loss: 22.535	 Actor Loss: -150.639	 Alpha Loss: 0.085
+Episode 49500/50000 	 Reward: 47.3408 	 Critic Loss: 21.903	 Actor Loss: -150.275	 Alpha Loss: 0.126
+
+Evaluation over 20 episodes:
+Average reward: 49.72 	 Range: [36.14, 82.41]
+Average episode length: 5.50 	 Range: [4.00, 9.00]
+Took a total of 2.0 Hours 3.0 Mins 57.29850244522095 Secs
