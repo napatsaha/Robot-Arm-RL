@@ -23,7 +23,7 @@ plot_dir = 'Plots'
 colors = plt.cm.Set1(range(len(trial)))
 for i, tr in enumerate(trial):
     run_name = algo+str(tr).zfill(2)
-    fname = os.path.join(main_dir,'results_'+run_name+'.csv')
+    fname = os.path.join(main_dir,'Log','results_'+run_name+'.csv')
     results = np.genfromtxt(fname, delimiter=',')
 
     # plt.plot(results[:,3], label='trial_'+str(tr).zfill(2), c=colors[i])

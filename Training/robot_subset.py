@@ -18,10 +18,11 @@ from torch import nn, optim
 from mlagents_envs.environment import UnityEnvironment, ActionTuple
 # from Training.learning02 import display_time, UnityGym, Transition
 from Training.utilities import display_time, Transition
+from Training.decay import decay
 # import gymnasium as gym
 
 class UnityGym():
-    def __init__(self, env, mask=None, mask_index=None, continuous=True):
+    def __init__(self, env, mask=None, mask_index=None):
         """
         Continuous is whether or not we want to convert from continuous action
         in algorithm to discrete action in agent.
@@ -31,6 +32,13 @@ class UnityGym():
         self.behaviour_name = list(env.behavior_specs.keys())[0]
         self.spec = env.behavior_specs.get(self.behaviour_name)
         
+        self.continuous_env = True if self.spec.action_spec.continuous_size > 0 \
+            else False
+        self.continuous = False if self.continuous_env else True
+        
+        self.full_n_branches = self.spec.action_spec.continuous_size if \
+            self.continuous_env else self.spec.action_spec.discrete_size
+        
         if mask is not None:
             self.subset = True
             self.mask = np.array(mask)
@@ -39,18 +47,19 @@ class UnityGym():
         elif mask_index is not None:
             self.subset = True
             self.mask_index = np.array(mask_index)
-            self.mask = np.zeros(self.spec.action_spec.discrete_size, dtype='int')
+            self.mask = np.zeros(self.full_n_branches, dtype='int')
             np.put(self.mask, self.mask_index, 1)
             self.n_branches = sum(self.mask)
         else:
             self.subset = False
             self.mask = mask
             self.mask_index = mask_index
-            self.n_branches = self.spec.action_spec.discrete_size
+            self.n_branches = self.full_n_branches
             
-        self.n_actions = self.spec.action_spec.discrete_branches[0]
+        if not self.continuous_env:
+            self.n_actions = self.spec.action_spec.discrete_branches[0]
         self.n_observations = self.spec.observation_specs[0].shape[0]
-        self.continuous = continuous
+
         if self.continuous:
             self.bins = np.linspace(-1, 1, self.n_actions+1)
 
@@ -73,12 +82,16 @@ class UnityGym():
             action = self.discretize_actions(action)
             
         if self.subset:
-            a = np.ones(len(self.mask), 'int')
+            if self.continuous:
+                a = np.ones(len(self.mask), 'int')
+            else:
+                a = np.zeros(len(self.mask), 'float')
             a[self.mask_index] = action
             action = a
             
         action = np.expand_dims(action, axis=0) # Add extra axis
-        action = ActionTuple(discrete=action)
+        action = ActionTuple(continuous=action) if self.continuous_env \
+            else ActionTuple(discrete=action)
         self.env.set_actions(self.behaviour_name, action)
         self.env.step()
         done = self._is_done()
@@ -103,7 +116,7 @@ class UnityGym():
         return state, reward
     
     def random_actions(self):
-        if self.continuous:
+        if self.continuous or self.continuous_env:
             action = np.random.rand(self.n_branches)*2-1 # Range [-1.1)
         else:
             action = np.random.randint(self.n_actions, size=self.n_branches)
@@ -111,6 +124,7 @@ class UnityGym():
         
     def close(self):
         self.env.close()
+
 
 class Network(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_dim=256,
@@ -159,8 +173,12 @@ class ActorNetwork(Network):
         return mean, std
 
 class SACAgent:
-    def __init__(self, env, lr=1e-3, gamma=0.99, soft_update_tau=0.01,
+    def __init__(self, env, 
+                 lr=1e-3, lr_limit=None, lr_decay_rate=0.3, 
+                 alpha_lr=None, alpha_lr_limit=None,
+                 gamma=0.99, soft_update_tau=0.01,
                  # epsilon=0.5, eps_decay=0.99,
+                 alpha=None,
                  memory_size=10000, hidden_size=256, log_std_range=[-20,2]):
         # Initialise dimensions
         self.env = env
@@ -170,6 +188,10 @@ class SACAgent:
         
         # Initialise hyperparameters
         self.lr = lr
+        self.lr_limit = lr if lr_limit is None else lr_limit
+        self.alpha_lr = lr if alpha_lr is None else alpha_lr
+        self.alpha_lr_limit = self.alpha_lr if alpha_lr_limit is None else alpha_lr_limit
+        self.lr_decay_rate = lr_decay_rate
         self.gamma = gamma
         self.tau = soft_update_tau
         # self.epsilon = epsilon
@@ -179,6 +201,11 @@ class SACAgent:
         self.max_clamp = log_std_range[-1]
 
         # Initialise Networks
+        if alpha is None:
+            self.train_alpha = True
+        else:
+            self.train_alpha = False
+            self.alpha = torch.tensor(alpha, dtype=torch.float32)
         self._initialise_model()
         self.update_target_networks(tau=1)
         self.criterion = nn.MSELoss()
@@ -197,15 +224,17 @@ class SACAgent:
         self.actor = Network(self.n_states, self.n_actions*2, self.hidden_size)
         
         # Temperature (alpha)
-        self.target_entropy = -self.n_actions
-        self.log_alpha = torch.zeros(1, requires_grad=True)
-        self.alpha = self.log_alpha.exp()
-        
+        if self.train_alpha:
+            self.target_entropy = -self.n_actions
+            self.log_alpha = torch.zeros(1, requires_grad=True)
+            self.alpha = self.log_alpha.exp()
+            self.alpha_optim = optim.Adam([self.log_alpha], lr=self.alpha_lr)
+    
         # Optimizer
         self.critic_optim1 = optim.Adam(self.critic1.parameters(), lr=self.lr)
         self.critic_optim2 = optim.Adam(self.critic2.parameters(), lr=self.lr)
         self.actor_optim = optim.Adam(self.actor.parameters(), lr=self.lr)
-        self.alpha_optim = optim.Adam([self.log_alpha], lr=self.lr, eps=1e-4)
+        
         
     def update_target_networks(self, tau=None):
         if tau is None:
@@ -311,11 +340,14 @@ class SACAgent:
         actor_loss.backward()
         self.actor_optim.step()
 
-        self.alpha_optim.zero_grad()               
-        alpha_loss = self.temperature_loss(log_probs)
-        alpha_loss.backward()
-        self.alpha_optim.step()
-        self.alpha = self.log_alpha.exp()
+        if self.train_alpha:
+            self.alpha_optim.zero_grad()               
+            alpha_loss = self.temperature_loss(log_probs)
+            alpha_loss.backward()
+            self.alpha_optim.step()
+            self.alpha = self.log_alpha.exp()
+        else:
+            alpha_loss = torch.zeros(1)
         
         self.update_target_networks(tau=self.tau)
         
@@ -330,7 +362,7 @@ class SACAgent:
     def _initialise_memory(self, size=200):
         state, _ = self.env.reset()
         for i in range(size):
-            action = self._choose_action(state, random=True)
+            action = self._choose_action(state)
             nextstate, reward, done, _ = self.env.step(action)
             transition = Transition(state, action, reward, nextstate, done)
             self.store_memory(transition)
@@ -376,8 +408,15 @@ class SACAgent:
                 # eps_critic_loss += critic_loss
                 n_steps += 1
                 
-            # Decay Epsilon
-            # self.epsilon = max(0.1, self.epsilon_decay * self.epsilon)
+            # Decay Learning Rate
+            lr = decay(i, self.lr, self.lr_limit, self.lr_decay_rate, n_episode)
+            self.actor_optim.param_groups[0]['lr'] = lr
+            self.critic_optim1.param_groups[0]['lr'] = lr
+            self.critic_optim2.param_groups[0]['lr'] = lr
+            if self.train_alpha:
+                self.alpha_optim.param_groups[0]['lr'] = \
+                    decay(i, self.alpha_lr, self.alpha_lr_limit, 
+                          self.lr_decay_rate, n_episode)
             
             # Calculate running reward/loss
             running_reward += 0.05 * (eps_reward - running_reward)
@@ -401,7 +440,7 @@ class SACAgent:
         else:
             return results
     
-    def evaluate(self, n_episode=20, print_intermediate=True):
+    def evaluate(self, n_episode=20, print_intermediate=True, greedy=True, stuck_debug=False, stuck_threshold=100):
         #self.model.eval()
         rewards = []
         steps = []
@@ -411,7 +450,7 @@ class SACAgent:
             eps_reward = 0
             n_steps = 0
             while not (done):
-                action = self._choose_action(state, greedy=True)
+                action = self._choose_action(state, greedy=greedy)
                 nextstate, reward, done, _ = self.env.step(action)
                 state = nextstate
                 # self.env.render()
@@ -419,6 +458,8 @@ class SACAgent:
                 # print(action)
                 eps_reward += reward
                 n_steps += 1
+                if n_steps > stuck_threshold and stuck_debug:
+                    print(f"Action: {action}")
                 
             rewards.append(eps_reward)
             steps.append(n_steps)
@@ -428,23 +469,24 @@ class SACAgent:
         steps = np.array(steps)
         
         print(f"\nEvaluation over {n_episode} episodes:")
-        print(f"Average reward: {rewards.mean():.2f} \t Range: [{rewards.min():.2f}, {rewards.max():.2f}]")
-        print(f"Average episode length: {steps.mean():.2f} \t Range: [{steps.min():.2f}, {steps.max():.2f}]")
+        print(f"Median reward: {np.median(rewards):.2f} \t Range: [{rewards.min():.2f}, {rewards.max():.2f}]")
+        print(f"Median episode length: {np.median(steps):.2f} \t Range: [{steps.min():.2f}, {steps.max():.2f}]")
         
         return rewards, steps
 
 if __name__ == "__main__":
     try:
-        N_EP = 250
+        N_EP = 500
+        active_joints = 0,1,2,3,4,5
         unityenv = UnityEnvironment()
-        env = UnityGym(unityenv, continuous=True, mask_index=(5))
-        agent = SACAgent(env, memory_size=100000, lr=3e-4)
+        env = UnityGym(unityenv, mask_index=active_joints)
+        agent = SACAgent(env, memory_size=100000, lr=1e-2, lr_limit=3e-4, alpha_lr=3e-2, alpha_lr_limit=3e-4)
         history, t = agent.train(n_episode=N_EP, timed=True, batch_size=128, report_freq=10)
         display_time(t)
         
-        trial = 1
-        algo = 'robot_subset'
-        res_name = os.path.join('Training','results_'+algo+str(trial).zfill(2)+'.csv')
+        trial = 102
+        algo = 'robot_subset_joint0_'
+        res_name = os.path.join('Training','Log','results_'+algo+str(trial).zfill(2)+'.csv')
         mod_name1 = os.path.join('Training','Model','model_'+'critic_'+algo+str(trial).zfill(2)+'.pt')
         mod_name2 = os.path.join('Training','Model','model_'+'actor_'+algo+str(trial).zfill(2)+'.pt')
         # mod_name3 = os.path.join('Training','Model','model_'+'alpha_'+algo+str(trial).zfill(2)+'.pt')

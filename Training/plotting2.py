@@ -10,8 +10,8 @@ import os, re
 import numpy as np
 import matplotlib.pyplot as plt
 
-trial = 1
-env_name = "orginal_csac"
+trial = 101
+env_name = "robot_subset_joint3_"
 if re.compile('v\d$').search(env_name):
     algo = 'gym_'+env_name.replace('-','_')+'_'
 else:
@@ -19,7 +19,8 @@ else:
 run_name = algo+str(trial).zfill(2)
 main_dir = 'Training'
 plot_dir = 'Plots'
-fname = os.path.join(main_dir,'results_'+run_name+'.csv')
+log_dir = "Log"
+fname = os.path.join(main_dir,log_dir,'results_'+run_name+'.csv')
 
 results = np.genfromtxt(fname, delimiter=',')
 

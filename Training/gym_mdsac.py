@@ -408,7 +408,7 @@ if __name__ == "__main__":
     
     trial = 103
     algo = 'gym_'+env_name.replace('-','_')+'_'
-    res_name = os.path.join('Training','results_'+algo+str(trial).zfill(2)+'.csv')
+    res_name = os.path.join('Training','Log','results_'+algo+str(trial).zfill(2)+'.csv')
     # mod_name1 = os.path.join('Training','Model','model_'+'critic_'+algo+str(trial).zfill(2)+'.pt')
     mod_name2 = os.path.join('Training','Model','model_'+'actor_'+algo+str(trial).zfill(2)+'.pt')
     # mod_name3 = os.path.join('Training','Model','model_'+'alpha_'+algo+str(trial).zfill(2)+'.pt')

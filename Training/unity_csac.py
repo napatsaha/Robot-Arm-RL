@@ -404,13 +404,13 @@ if __name__ == "__main__":
         N_EP = 1000
         unityenv = UnityEnvironment()
         env = UnityGym(unityenv)
-        agent = SACAgent(env, memory_size=100000, lr=3e-4)
+        agent = SACAgent(env, memory_size=100000, lr=3e-3)
         history, t = agent.train(n_episode=N_EP, timed=True, batch_size=128, report_freq=10)
         display_time(t)
         
         trial = 1
-        algo = 'unity_worm'
-        res_name = os.path.join('Training','results_'+algo+str(trial).zfill(2)+'.csv')
+        algo = 'unity_crawler'
+        res_name = os.path.join('Training','Log','results_'+algo+str(trial).zfill(2)+'.csv')
         mod_name1 = os.path.join('Training','Model','model_'+'critic_'+algo+str(trial).zfill(2)+'.pt')
         mod_name2 = os.path.join('Training','Model','model_'+'actor_'+algo+str(trial).zfill(2)+'.pt')
         # mod_name3 = os.path.join('Training','Model','model_'+'alpha_'+algo+str(trial).zfill(2)+'.pt')
