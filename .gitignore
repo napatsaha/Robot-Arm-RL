@@ -1,0 +1,16 @@
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Recordings can get excessive in size
+/[Rr]ecordings/
+
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
+# VS Code files for those working on multiple tools
+.vscode/*
+
+# Visual Studio History (VSHistory) files
+.vshistory/
