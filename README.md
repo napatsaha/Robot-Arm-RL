@@ -5,6 +5,16 @@ This github directory contains both the Python files to train the RL algorithms 
 
 ## Unity Project Structure
 
+#### Example
+
+<figure class="video_container">
+  <video controls="true" allowfullscreen="true">
+    <source src="docs/videos/robot_subset_joint2_102.mp4" type="video/mp4">
+  </video>
+</figure>
+
+#### Different Projects
+
 There are so far 4 variations of the Unity project environments used for training the robot (in chronological order of development):
 
 - **ArmRobotOriginal** - The original environment with:
