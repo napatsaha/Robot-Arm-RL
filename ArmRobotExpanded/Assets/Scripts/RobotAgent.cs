@@ -10,7 +10,7 @@ public class RobotAgent : Agent
     public GameObject robot;
     public GameObject hand;
     public GameObject target;
-    public bool normalizeTargetDistance;
+    public bool normalizeTargetDistance = false;
     public GameObject table;
     public float[] initialRotations = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     private RobotController controller;
@@ -89,6 +89,13 @@ public class RobotAgent : Agent
             ArticulationJointController joint = controller.joints[i].robotPart.GetComponent<ArticulationJointController>();
             float rotation = (joint.CurrentPrimaryAxisRotation() % 360) / 360;
             sensor.AddObservation(rotation);
+
+            string result = "";
+            foreach (float item in joint.CollectionExtraInformation())
+            {
+                result += item.ToString() +", ";
+            }
+            Debug.Log("Joint: " + joint.articulation.index + " Obs: " + result);
         }
 
         // Observe target location

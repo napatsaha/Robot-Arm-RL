@@ -13,7 +13,7 @@ public class ArticulationJointController : MonoBehaviour
 
     public float speed2 = 1f;
 
-    private ArticulationBody articulation;
+    public ArticulationBody articulation;
 
 
     // LIFE CYCLE
@@ -78,6 +78,16 @@ public class ArticulationJointController : MonoBehaviour
         // float currentRotation = currentRotationRads;
         return currentRotation;
     }
+
+    public List<float> CollectionExtraInformation()
+    {
+        List<float> obs = new List<float>();
+        obs.Add(articulation.jointVelocity[0]);
+        obs.Add(articulation.jointForce[0]);
+        obs.Add(articulation.jointAcceleration[0]);
+        return obs;
+    }
+    
 
     public void RotateTo(float primaryAxisRotation)
     {
