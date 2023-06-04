@@ -7,11 +7,17 @@ This github directory contains both the Python files to train the RL algorithms 
 
 #### Example
 
-<figure class="video_container">
+<!-- <figure class="video_container">
   <video controls="true" allowfullscreen="true">
     <source src="docs/videos/robot_subset_joint2_102.mp4" type="video/mp4">
   </video>
-</figure>
+</figure> -->
+
+
+
+https://github.com/WSU-Data-Science/Robot-Arm-RL/assets/98146048/c8fd5824-a286-4048-88e0-56d917e90983
+
+
 
 #### Different Projects
 
