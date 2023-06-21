@@ -79,6 +79,13 @@ public class ArticulationJointController : MonoBehaviour
         return currentRotation;
     }
 
+    public float CurrentJointVelocity()
+    {
+        float velocity = articulation.jointVelocity[0];
+        velocity = Mathf.Rad2Deg * velocity;
+        return velocity;
+    }
+
     public List<float> CollectionExtraInformation()
     {
         List<float> obs = new List<float>();

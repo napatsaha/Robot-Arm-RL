@@ -10,8 +10,9 @@ public class RobotAgent : Agent
     public GameObject robot;
     public GameObject hand;
     public GameObject target;
-    public bool normalizeTargetDistance;
     public GameObject table;
+    public bool normalizeTargetDistance = false;
+    public bool penalizeTableCollision = false;
     public float[] initialRotations = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     private RobotController controller;
     private TargetDetector detector;
@@ -149,12 +150,12 @@ public class RobotAgent : Agent
         }
 
         // If body touches table
-        // if (tableDetector.hasTouched)
-        // {
-        //     AddReward(-0.5f);
-        //     tableDetector.hasTouched = false;
-        //     // Debug.Log("Arm collided with table");
-        // }
+        if (penalizeTableCollision && tableDetector.hasTouched)
+        {
+            AddReward(-0.5f);
+            tableDetector.hasTouched = false;
+            // Debug.Log("Arm collided with table");
+        }
 
         // If hand touches table
         // if (detector.hasTouchedTable)

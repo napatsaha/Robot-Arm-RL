@@ -453,9 +453,6 @@ class SACAgent:
                 action = self._choose_action(state, greedy=greedy)
                 nextstate, reward, done, _ = self.env.step(action)
                 state = nextstate
-                # self.env.render()
-                # time.sleep(delay)
-                # print(action)
                 eps_reward += reward
                 n_steps += 1
                 if n_steps > stuck_threshold and stuck_debug:
@@ -467,8 +464,10 @@ class SACAgent:
                 print(f'Episode {i}/{n_episode} \t Reward: {eps_reward:.4f} \t Length: {n_steps}')
         rewards = np.array(rewards)
         steps = np.array(steps)
+        success_rate = np.mean(steps < stuck_threshold)
         
         print(f"\nEvaluation over {n_episode} episodes:")
+        print(f"Success Rate: {success_rate:.1%} ({int(n_episode*success_rate)}/{n_episode})")
         print(f"Median reward: {np.median(rewards):.2f} \t Range: [{rewards.min():.2f}, {rewards.max():.2f}]")
         print(f"Median episode length: {np.median(steps):.2f} \t Range: [{steps.min():.2f}, {steps.max():.2f}]")
         
@@ -480,11 +479,11 @@ if __name__ == "__main__":
         active_joints = 0,1,2,3,4,5
         unityenv = UnityEnvironment()
         env = UnityGym(unityenv, mask_index=active_joints)
-        agent = SACAgent(env, memory_size=100000, lr=1e-2, lr_limit=3e-4, alpha_lr=3e-2, alpha_lr_limit=3e-4)
+        agent = SACAgent(env, memory_size=100000, lr=1e-2, lr_limit=3e-4, alpha_lr=3e-3, alpha_lr_limit=3e-4)
         history, t = agent.train(n_episode=N_EP, timed=True, batch_size=128, report_freq=10)
         display_time(t)
         
-        trial = 102
+        trial = 1
         algo = 'robot_subset_joint0_'
         res_name = os.path.join('Training','Log','results_'+algo+str(trial).zfill(2)+'.csv')
         mod_name1 = os.path.join('Training','Model','model_'+'critic_'+algo+str(trial).zfill(2)+'.pt')
@@ -495,6 +494,10 @@ if __name__ == "__main__":
         torch.save(agent.critic1.state_dict(), mod_name1)
         torch.save(agent.actor.state_dict(), mod_name2)
         # torch.save(agent.alpha, mod_name3)
+        
+        agent.evaluate(n_episode=20, print_intermediate=False)
+        cont = "Continuous" if trial > 100 else "Discrete"
+        print(f"  Joints:\t{env.mask_index} \n  Trial #:\t{trial} \n  Actions:\t{cont}")
         
     finally:
         unityenv.close()

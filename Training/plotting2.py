@@ -10,8 +10,8 @@ import os, re
 import numpy as np
 import matplotlib.pyplot as plt
 
-trial = 101
-env_name = "robot_subset_joint3_"
+trial = 104
+env_name = "robot_subset_joint1_"
 if re.compile('v\d$').search(env_name):
     algo = 'gym_'+env_name.replace('-','_')+'_'
 else:
@@ -26,60 +26,66 @@ results = np.genfromtxt(fname, delimiter=',')
 
 n_feat = results.shape[1]
 
-plot_num_step = True
+plot_reward = True
+plot_loss = False
+plot_alpha = False
+plot_num_step = False
 
 # cumsum = np.cumsum(results[:,0])
 # n_eps = np.arange(results.shape[0])+1
 # avg_reward2 = cumsum/n_eps
 
-if n_feat == 3:
-    avg_reward = np.zeros((results.shape[0]))
-    avg_reward[0] = results[0,0]
-    for i in range(1,results.shape[0]):
-        avg_reward[i] = avg_reward[i-1] + 0.05*(results[i,0] - avg_reward[i-1])
-    plt.plot(avg_reward, 'k-', label="Running Reward")
-    # plt.plot(avg_reward2, 'b-', label="Mean Reward")
-    plt.ylabel('Running Reward')
-    plt.xlabel('Episode')
-    plt.title('Average Reward' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
-    plt.legend()
-    plot_name = os.path.join(main_dir,plot_dir,run_name+'_reward'+'.png')
-    plt.savefig(plot_name)
-    plt.show()
-
-else:
+if plot_reward:
+    if n_feat == 3:
+        avg_reward = np.zeros((results.shape[0]))
+        avg_reward[0] = results[0,0]
+        for i in range(1,results.shape[0]):
+            avg_reward[i] = avg_reward[i-1] + 0.05*(results[i,0] - avg_reward[i-1])
+        plt.plot(avg_reward, 'k-', label="Running Reward")
+        # plt.plot(avg_reward2, 'b-', label="Mean Reward")
+        plt.ylabel('Running Reward')
+        plt.xlabel('Episode')
+        plt.title('Average Reward' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
+        plt.legend()
+        plot_name = os.path.join(main_dir,plot_dir,run_name+'_reward'+'.png')
+        plt.savefig(plot_name)
+        plt.show()
     
-    plt.plot(results[:,3], 'k-', label="Running Reward")
-    # plt.plot(avg_reward2, 'b-', label="Mean Reward")
-    plt.ylabel('Running Reward')
-    plt.xlabel('Episode')
-    plt.title('Average Reward' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
-    plt.legend()
-    plot_name = os.path.join(main_dir,plot_dir,run_name+'_reward'+'.png')
-    plt.savefig(plot_name)
-    plt.show()
+    else:
+        
+        plt.plot(results[:,3], 'k-', label="Running Reward")
+        # plt.plot(avg_reward2, 'b-', label="Mean Reward")
+        plt.ylabel('Running Reward')
+        plt.xlabel('Episode')
+        plt.title('Average Reward' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
+        plt.legend()
+        plot_name = os.path.join(main_dir,plot_dir,run_name+'_reward'+'.png')
+        plt.savefig(plot_name)
+        plt.show()
 
 if n_feat >= 6:
-    plt.plot(results[:,5], 'k-', label="Running Critic Loss")
-    # plt.plot(avg_reward2, 'b-', label="Mean Reward")
-    plt.ylabel('Loss')
-    plt.xlabel('Episode')
-    plt.title('Running Critic Loss' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
-    plt.show()
+    if plot_loss:
+        plt.plot(results[:,5], 'k-', label="Running Critic Loss")
+        # plt.plot(avg_reward2, 'b-', label="Mean Reward")
+        plt.ylabel('Loss')
+        plt.xlabel('Episode')
+        plt.title('Running Critic Loss' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
+        plt.show()
+        
+        plt.plot(results[:,4], 'k-', label="Running Actor Loss")
+        # plt.plot(avg_reward2, 'b-', label="Mean Reward")
+        plt.ylabel('Loss')
+        plt.xlabel('Episode')
+        plt.title('Running Actor Loss' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
+        plt.show()
     
-    plt.plot(results[:,4], 'k-', label="Running Actor Loss")
-    # plt.plot(avg_reward2, 'b-', label="Mean Reward")
-    plt.ylabel('Loss')
-    plt.xlabel('Episode')
-    plt.title('Running Actor Loss' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
-    plt.show()
-    
-    plt.plot(results[:,1], 'k-', label="Temperature (Alpha)")
-    # plt.plot(avg_reward2, 'b-', label="Mean Reward")
-    plt.ylabel('Alpha')
-    plt.xlabel('Episode')
-    plt.title('Temperature (Alpha)' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
-    plt.show()    
+    if plot_alpha:
+        plt.plot(results[:,1], 'k-', label="Temperature (Alpha)")
+        # plt.plot(avg_reward2, 'b-', label="Mean Reward")
+        plt.ylabel('Alpha')
+        plt.xlabel('Episode')
+        plt.title('Temperature (Alpha)' + '\n'+str.title(algo)+' / Trial: ' + str(trial).zfill(2))
+        plt.show()    
 else:
 # Average Loss
     avg_loss = np.zeros((results.shape[0]))

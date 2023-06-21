@@ -90,11 +90,13 @@ public class RobotAgent : Agent
             float rotation = (joint.CurrentPrimaryAxisRotation() % 360) / 360;
             sensor.AddObservation(rotation);
 
-            string result = "";
-            foreach (float item in joint.CollectionExtraInformation())
-            {
-                result += item.ToString() +", ";
-            }
+            string result = joint.CurrentJointVelocity().ToString();
+
+            // string result = "";
+            // foreach (float item in joint.CollectionExtraInformation())
+            // {
+            //     result += item.ToString() +", ";
+            // }
             Debug.Log("Joint: " + joint.articulation.index + " Obs: " + result);
         }
 

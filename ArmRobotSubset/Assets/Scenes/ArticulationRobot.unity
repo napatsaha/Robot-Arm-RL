@@ -1455,7 +1455,7 @@ MonoBehaviour:
   table: {fileID: 1064094162}
   arm: {fileID: 1442213767}
   armTip: {fileID: 995377197}
-  jointIndex: 1
+  jointIndex: 0
   radiusError: 0
   minLength: 1
 --- !u!114 &1383161873
@@ -1678,6 +1678,8 @@ MonoBehaviour:
   hand: {fileID: 995377197}
   target: {fileID: 1383161865}
   table: {fileID: 1064094162}
+  normalizeTargetDistance: 0
+  penalizeTableCollision: 0
   initialRotations:
   - 0
   - 0

@@ -11,6 +11,8 @@ public class RobotAgent : Agent
     public GameObject hand;
     public GameObject target;
     public GameObject table;
+    public bool normalizeTargetDistance = false;
+    public bool penalizeTableCollision = false;
     public float[] initialRotations = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     private RobotController controller;
     private TargetDetector detector;
@@ -94,7 +96,12 @@ public class RobotAgent : Agent
         // sensor.AddObservation(target.transform.position);
         
         Vector3 relativeTargetPosition = target.transform.position - robot.transform.position;
-        sensor.AddObservation(relativeTargetPosition.normalized);
+        if (normalizeTargetDistance)
+        {
+            sensor.AddObservation(relativeTargetPosition.normalized);
+        }    else {
+            sensor.AddObservation(relativeTargetPosition);
+        }
 
         // // Observe Hand Position
         // Vector3 relativeHandPosition = hand.transform.position - robot.transform.position;
@@ -141,7 +148,7 @@ public class RobotAgent : Agent
         }
 
         // If body touches table
-        if (tableDetector.hasTouched)
+        if (penalizeTableCollision && tableDetector.hasTouched)
         {
             AddReward(-0.5f);
             tableDetector.hasTouched = false;
