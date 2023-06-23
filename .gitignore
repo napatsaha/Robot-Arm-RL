@@ -5,6 +5,8 @@
 # Recordings can get excessive in size
 /[Rr]ecordings/
 
+Training/__pycache__/
+*.py[cod]
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
