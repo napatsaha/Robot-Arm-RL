@@ -1673,7 +1673,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 5000
+  MaxStep: 2000
   robot: {fileID: 1442213767}
   hand: {fileID: 995377197}
   target: {fileID: 1383161865}

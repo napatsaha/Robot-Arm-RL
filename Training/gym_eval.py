@@ -9,8 +9,8 @@ import gymnasium as gym
 from Training.gym_mdsac import DSACAgent, DiscretizeActions
 from Training.gym_sac import SACAgent
 
-trial = 103
-env_name = "Reacher-v4"
+trial = 4
+env_name = "InvertedDoublePendulum-v4"
 if re.compile('v\d$').search(env_name):
     algo = 'gym_'+env_name.replace('-','_')+'_'
 else:
@@ -34,6 +34,6 @@ state_dict = torch.load(fname)
 agent.actor.load_state_dict(state_dict)
 
 print("Environment: {}\nTrial: {}".format(env_name, trial))
-agent.evaluate(delay=0)
+agent.evaluate(delay=0, n_episode=5)
 
 env.close()

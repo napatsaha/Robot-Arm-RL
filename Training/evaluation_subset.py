@@ -12,9 +12,9 @@ from Training.robot_subset import UnityGym, SACAgent
 
 if __name__ == '__main__':
     try:
-        trial = 103
-        active_joints = 1,2,3,4,5
-        env_name = "robot_subset_joint1_"
+        trial = 1
+        active_joints = 0,1,2,3,4,5
+        env_name = "robot_subset_joint0_"
         sac = True
         if re.compile('v\d$').search(env_name):
             algo = 'gym_'+env_name.replace('-','_')+'_'
@@ -33,6 +33,6 @@ if __name__ == '__main__':
         else:
             agent.model.load_state_dict(state_dict)
         
-        history, length = agent.evaluate(n_episode=50, greedy=True, stuck_debug=True)
+        history, length = agent.evaluate(n_episode=20, greedy=True, stuck_debug=False)
     finally:
         unityenv.close()
